@@ -5,4 +5,4 @@ const Task = mongoose.model('Task', {
   completed: Boolean
 });
 
-module.exports = Task;
+module.exports = Task; 

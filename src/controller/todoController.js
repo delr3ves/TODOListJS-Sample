@@ -9,16 +9,25 @@ var todoService = new TODOService(
   new TaskValidator(),
   new TaskRepository()
 );
+
+const asApiObject = (task) =>  {
+  return {
+    id: task._id,
+    task: task.task,
+    completed: task.completed
+  };
+}
+
 router.get('/', function (req, res, next) {
   todoService.findAll().then(allTasks => {
-    res.send(allTasks);
+    res.send(allTasks.map(asApiObject));
   });
 });
 
 router.get('/:id', function (req, res, next) {
   todoService.findOne(req.params.id).then(task => {
     if (task) {
-      res.send(task);
+      res.send(asApiObject(task));
     } else {
       res.send(createError(404));
     }
@@ -30,7 +39,7 @@ router.get('/:id', function (req, res, next) {
 router.post('/', function (req, res, next) {
   console.log(req.body);
   todoService.addTask(req.body || {}).then(createdTask => {
-    res.send(createdTask);
+    res.send(asApiObject(createdTask));
   }).catch(error => {
     res.send(createError(406, error));
   });

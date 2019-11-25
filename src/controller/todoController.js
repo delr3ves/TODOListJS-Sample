@@ -1,11 +1,13 @@
 var express = require('express');
 var router = express.Router();
 var TaskValidator = require('../core/TaskValidator');
+var TaskRepository = require('../core/TaskRepository');
 var TODOService = require('../core/TodoService');
 var createError = require('http-errors');
 
 var todoService = new TODOService(
-  new TaskValidator()
+  new TaskValidator(),
+  new TaskRepository()
 );
 router.get('/', function (req, res, next) {
   todoService.findAll().then(allTasks => {
@@ -14,9 +16,12 @@ router.get('/', function (req, res, next) {
 });
 
 router.get('/:id', function (req, res, next) {
-  const numericId = req.params.id * 1;
-  todoService.findOne(numericId).then(task => {
-    res.send(task);
+  todoService.findOne(req.params.id).then(task => {
+    if (task) {
+      res.send(task);
+    } else {
+      res.send(createError(404));
+    }
   }).catch(error => {
     res.send(createError(404));
   });

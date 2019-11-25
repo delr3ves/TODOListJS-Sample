@@ -1,33 +1,29 @@
+const Task = require('./Task');
+
 class TODOService {
-  constructor(taskValidator) {
+  constructor(taskValidator, taskRepository) {
     this.taskValidator = taskValidator;
+    this.taskRepository = taskRepository;
   } 
 
-  availableTasks = [];
   findAll() {
-    return Promise.resolve(this.availableTasks);
+    return this.taskRepository.findAll();
   }
 
   findOne(id) {
-    const foundTask = this.availableTasks.find((task) => (task.id === id));
-    if (!foundTask) {
-      return Promise.resolve({error: `TODO List with id ${id} not found`})
-    }
-    return Promise.resolve(foundTask);
+    return this.taskRepository.findById(id);
   }
 
   addTask(task) {
-    const taskToBeIncluded = {
-      id: new Date().getTime(),
+    const taskToBeIncluded = new Task({
       task: task.task,
       completed: false
-    };
+    });
     const violations = this.taskValidator.verifyCreation(taskToBeIncluded);
     if (Object.entries(violations).length > 0 ) {
       return Promise.reject(violations);
     }
-    this.availableTasks.push(taskToBeIncluded);
-    return Promise.resolve(taskToBeIncluded);
+    return this.taskRepository.save(taskToBeIncluded);
   }
 }
 

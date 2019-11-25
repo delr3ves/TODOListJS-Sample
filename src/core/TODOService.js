@@ -1,17 +1,9 @@
-
 class TODOService {
-  availableTasks = [
-    {
-      id: 1,
-      task: "Just test the simplest API",
-      completed: false
-    },
-    {
-      id: 2,
-      task: "A completed task",
-      completed: true
-    },
-  ];
+  constructor(taskValidator) {
+    this.taskValidator = taskValidator;
+  } 
+
+  availableTasks = [];
   findAll() {
     return Promise.resolve(this.availableTasks);
   }
@@ -24,6 +16,19 @@ class TODOService {
     return Promise.resolve(foundTask);
   }
 
+  addTask(task) {
+    const taskToBeIncluded = {
+      id: new Date().getTime(),
+      task: task.task,
+      completed: false
+    };
+    const violations = this.taskValidator.verifyCreation(taskToBeIncluded);
+    if (Object.entries(violations).length > 0 ) {
+      return Promise.reject(violations);
+    }
+    this.availableTasks.push(taskToBeIncluded);
+    return Promise.resolve(taskToBeIncluded);
+  }
 }
 
 module.exports = TODOService;
